@@ -55,7 +55,7 @@
 		<maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
 		<maven.jacoco.plugin.version>0.8.5</maven.jacoco.plugin.version>
 		<maven.sonar.plugin.version>3.7.0.1746</maven.sonar.plugin.version>
-
+		<jackson.version>2.12.1</jackson.version>
 		<!-- Lombok -->
 		<lombok.version>1.18.8</lombok.version>
 
@@ -84,6 +84,10 @@
 					<groupId>io.mosip.kernel</groupId>
 					<artifactId>kernel-core</artifactId>
 				</exclusion>
+            	<exclusion>
+            		<groupId>com.fasterxml.jackson.core</groupId>
+            		<artifactId>jackson-databind</artifactId>
+            	</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -111,6 +115,10 @@
 					<groupId>io.mosip.kernel</groupId>
 					<artifactId>kernel-core</artifactId>
 				</exclusion>
+                <exclusion>
+                	<groupId>com.fasterxml.jackson.core</groupId>
+                	<artifactId>jackson-databind</artifactId>
+                </exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -126,11 +134,6 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.11.3</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -179,6 +182,26 @@
 			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-core</artifactId>
 			<version>${kernel.core.version}</version>
+        	<exclusions>
+        		<exclusion>
+        			<groupId>com.fasterxml.jackson.core</groupId>
+        			<artifactId>jackson-databind</artifactId>
+        		</exclusion>
+        		<exclusion>
+        			<groupId>com.fasterxml.jackson.core</groupId>
+        			<artifactId>jackson-annotations</artifactId>
+        		</exclusion>
+        	</exclusions>
+        </dependency>
+        <dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-jaxb-annotations</artifactId>
+			<version>${jackson.version}</version>
 		</dependency>
 	</dependencies>
 
