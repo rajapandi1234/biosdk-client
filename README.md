@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 [![Maven Package upon a push](https://github.com/mosip/biosdk-client/actions/workflows/push_trigger.yml/badge.svg?branch=develop)](https://github.com/mosip/biosdk-client/actions/workflows/push_trigger.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?branch=develop&project=mosip_biosdk-client&metric=alert_status)](https://sonarcloud.io/dashboard?branch=develop&id=mosip_biosdk-client)
-=======
-[![Maven Package upon a push](https://github.com/mosip/biosdk-client/actions/workflows/push-trigger.yml/badge.svg?branch=master)](https://github.com/mosip/biosdk-client/actions/workflows/push-trigger.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?branch=master&project=mosip_biosdk-client&metric=alert_status)](https://sonarcloud.io/dashboard?branch=master&id=mosip_biosdk-client)
->>>>>>> d10f9fc ([DSD-4772] PLA 1.2.0.1 release changes code to master)
 
 # Bio-SDK Client
 
