@@ -208,7 +208,17 @@
 					<skip>false</skip>
 					<argLine>
 						${argLine} 
+						--add-modules=ALL-SYSTEM
 						--add-opens java.xml/jdk.xml.internal=ALL-UNNAMED
+						--add-opens java.base/java.lang.reflect=ALL-UNNAMED
+						--add-opens java.base/java.lang.stream=ALL-UNNAMED
+						--add-opens java.base/java.time=ALL-UNNAMED
+						--add-opens java.base/java.time.LocalDate=ALL-UNNAMED
+						--add-opens
+						java.base/java.time.LocalDateTime=ALL-UNNAMED
+						--add-opens
+						java.base/java.time.LocalDateTime.date=ALL-UNNAMED
+						--enable-preview
 					</argLine>
 				</configuration>
 			</plugin>
@@ -229,7 +239,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<version>${maven.gpg.plugin.version}</version>
-				<!--<configuration><skip>true</skip></configuration>-->
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>
@@ -363,7 +372,6 @@
 					</includeOnlyProperties>
 					<commitIdGenerationMode>full</commitIdGenerationMode>
 					<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-					<!-- <format>json</format> -->
 				</configuration>
 			</plugin>
 		</plugins>

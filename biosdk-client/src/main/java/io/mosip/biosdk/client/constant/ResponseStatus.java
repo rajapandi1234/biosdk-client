@@ -1,7 +1,6 @@
 package io.mosip.biosdk.client.constant;
 
 public enum ResponseStatus {
-
 	SUCCESS(200, "OK"),
 	INVALID_INPUT(401, "Invalid Input Parameter - %s"),
 	MISSING_INPUT(402, "Missing Input Parameter - %s"),
@@ -10,8 +9,8 @@ public enum ResponseStatus {
 	UNKNOWN_ERROR(500, "UNKNOWN_ERROR");
 	
 	ResponseStatus(int statusCode, String statusMessage) {
-		this.setStatusCode(statusCode);
-		this.setStatusMessage(statusMessage);
+		this.statusCode = statusCode;
+		this.statusMessage = statusMessage;
 	}
 	
 	private int statusCode;
@@ -20,17 +19,8 @@ public enum ResponseStatus {
 	public int getStatusCode() {
 		return statusCode;
 	}
-	public void setStatusCode(int statusCode) {
-		this.statusCode = statusCode;
-	}
 
 	public String getStatusMessage() {
 		return statusMessage;
 	}
-
-	public void setStatusMessage(String statusMessage) {
-		this.statusMessage = statusMessage;
-	}
-
-	
 }
