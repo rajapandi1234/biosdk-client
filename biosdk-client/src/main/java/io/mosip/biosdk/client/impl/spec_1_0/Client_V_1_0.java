@@ -53,8 +53,8 @@ import io.mosip.kernel.core.logger.spi.Logger;
  * @author Loganathan Sekar
  * 
  */
-public class Client_V_1_0 // NOSONAR
-		implements IBioApiV2 {
+@SuppressWarnings({ "java:S101" })
+public class Client_V_1_0 implements IBioApiV2 {
 	private static Logger logger = LoggerConfig.logConfig(Client_V_1_0.class);
 
 	private static final String FORMAT_SUFFIX = ".format";
