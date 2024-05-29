@@ -33,7 +33,7 @@ public class Util {
 		REST_TEMPLATE.getMessageConverters().add(MESSAGE_CONVERTER);
 	}
 
-	public static final String debugRequestResponse = System.getenv("mosip_biosdk_request_response_debug"); // NOSONAR
+	public static final String DEBUG_REQUEST_RESPONSE = System.getenv("mosip_biosdk_request_response_debug");
 
 	private static Logger utilLogger = LoggerConfig.logConfig(Util.class);
 
@@ -41,9 +41,9 @@ public class Util {
 		throw new IllegalStateException("Util class");
 	}
 
-	public static ResponseEntity<?> // NOSONAR
-			restRequest(String url, HttpMethod httpMethodType, MediaType mediaType, Object body,
-					Map<String, String> headersMap, Class<?> responseClass) {
+	@SuppressWarnings({ "java:S1452" })
+	public static ResponseEntity<?> restRequest(String url, HttpMethod httpMethodType, MediaType mediaType, Object body,
+			Map<String, String> headersMap, Class<?> responseClass) {
 		ResponseEntity<?> response = null;
 		RestTemplate restTemplate = getRestTemplate();
 
@@ -52,7 +52,7 @@ public class Util {
 			headers.setContentType(mediaType);
 			HttpEntity<?> request = null;
 			if (headersMap != null) {
-				headersMap.forEach((k, v) -> headers.add(k, v)); // NOSONAR
+				headersMap.forEach((k, v) -> headers.add(k, v));
 			}
 			if (body != null) {
 				request = new HttpEntity<>(body, headers);
@@ -60,7 +60,7 @@ public class Util {
 				request = new HttpEntity<>(headers);
 			}
 
-			if (debugRequestResponse != null && debugRequestResponse.equalsIgnoreCase("y")) {
+			if (DEBUG_REQUEST_RESPONSE != null && DEBUG_REQUEST_RESPONSE.equalsIgnoreCase("y")) {
 				Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
 				utilLogger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, "Request: ", gson.toJson(request.getBody()));
 			}
@@ -70,7 +70,7 @@ public class Util {
 			Object responseBodyObject = response.getBody();
 			String responseBody = responseBodyObject != null ? responseBodyObject.toString() : "";
 
-			if (debugRequestResponse != null && debugRequestResponse.equalsIgnoreCase("y")) {
+			if (DEBUG_REQUEST_RESPONSE != null && DEBUG_REQUEST_RESPONSE.equalsIgnoreCase("y")) {
 				utilLogger.debug(LOGGER_SESSIONID, LOGGER_IDTYPE, "Response: ", responseBody);
 			}
 		} catch (RestClientException ex) {
