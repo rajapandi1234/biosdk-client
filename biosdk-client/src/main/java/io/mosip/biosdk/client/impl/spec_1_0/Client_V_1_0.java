@@ -45,13 +45,31 @@ import io.mosip.kernel.biometrics.spi.IBioApiV2;
 import io.mosip.kernel.core.logger.spi.Logger;
 
 /**
- * The Class BioApiImpl.
+ * Implementation of the BioSDK client API version 1.0. This class provides
+ * methods to interact with the BioSDK service for biometric operations.
+ * 
+ * <p>
+ * Methods provided in this implementation include initializing the SDK,
+ * performing quality checks, matching biometric records, extracting templates,
+ * segmenting biometric data, and converting formats.
+ * </p>
+ * 
+ * <p>
+ * It utilizes Spring Framework for RESTful interactions and Gson library for
+ * JSON handling.
+ * </p>
+ * 
+ * <p>
+ * Logging is handled using Mosip LoggerConfig for consistent and structured
+ * logging.
+ * </p>
  * 
  * @author Sanjay Murali
  * @author Manoj SP
  * @author Ankit
  * @author Loganathan Sekar
  * 
+ * @since 1.0.0
  */
 @SuppressWarnings({ "java:S101" })
 public class Client_V_1_0 implements IBioApiV2 {
@@ -80,12 +98,25 @@ public class Client_V_1_0 implements IBioApiV2 {
 
 	private Map<String, String> sdkUrlsMap;
 
+	/**
+	 * Constructs a new instance of the BioSDK client version 1.0. Initializes Gson
+	 * for JSON serialization and deserialization.
+	 */
 	public Client_V_1_0() {
 		gson = new GsonBuilder().serializeNulls().create();
 		errorDtoListType = new TypeToken<List<ErrorDto>>() {
 		}.getType();
 	}
 
+	/**
+	 * Initializes the BioSDK client with the provided initialization parameters.
+	 * Retrieves SDK URLs and aggregates SDK information from multiple sources.
+	 * 
+	 * @param initParams The initialization parameters for the SDK.
+	 * @return SDKInfo object containing aggregated SDK information.
+	 * @throws BioSdkClientException if initialization fails or SDK URLs are not
+	 *                               configured properly.
+	 */
 	@Override
 	public SDKInfo init(Map<String, String> initParams) {
 		sdkUrlsMap = getSdkUrls(initParams);
@@ -93,6 +124,19 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return getAggregatedSdkInfo(sdkInfos);
 	}
 
+	/**
+	 * Aggregates information from a list of SDKInfo objects into a single SDKInfo
+	 * object.
+	 * 
+	 * If the provided list is empty, returns null. If the list contains a single
+	 * element, returns that element directly. Otherwise, iterates through the list
+	 * and merges information from each element to create a new aggregated SDKInfo
+	 * object.
+	 *
+	 * @param sdkInfos The list of SDKInfo objects to aggregate.
+	 * @return An SDKInfo object containing aggregated information, or null if the
+	 *         list is empty.
+	 */
 	private SDKInfo getAggregatedSdkInfo(List<SDKInfo> sdkInfos) {
 		SDKInfo sdkInfo;
 		if (!sdkInfos.isEmpty()) {
@@ -108,6 +152,19 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return sdkInfo;
 	}
 
+	/**
+	 * Helper method used for recursive aggregation of SDKInfo objects.
+	 * 
+	 * This method likely extracts common details (API version, SDK version,
+	 * organization, type) from the provided initial SDKInfo object and creates a
+	 * new aggregated SDKInfo instance. It then iterates through the remaining
+	 * elements in the list (sdkInfos) and calls addOtherSdkInfoDetails to merge
+	 * details from each element into the aggregated object.
+	 *
+	 * @param sdkInfos The list of SDKInfo objects to process.
+	 * @param sdkInfo  An initial SDKInfo object to use as a base for aggregation.
+	 * @return An SDKInfo object containing aggregated information.
+	 */
 	private SDKInfo getAggregatedSdkInfo(List<SDKInfo> sdkInfos, SDKInfo sdkInfo) {
 		String organization = sdkInfo.getProductOwner() == null ? null : sdkInfo.getProductOwner().getOrganization();
 		String type = sdkInfo.getProductOwner() == null ? null : sdkInfo.getProductOwner().getType();
@@ -116,6 +173,18 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return aggregatedSdkInfo;
 	}
 
+	/**
+	 * Merges specific details from a source SDKInfo object into a target aggregated
+	 * SDKInfo object.
+	 *
+	 * This method selectively merges details like "other information" (maps),
+	 * "supported methods" (maps), and "supported modalities" (lists) from the
+	 * source object to the target object. It avoids adding duplicate entries for
+	 * supported modalities.
+	 *
+	 * @param sdkInfo           The source SDKInfo object to extract details from.
+	 * @param aggregatedSdkInfo The target SDKInfo object to merge details into.
+	 */
 	private void addOtherSdkInfoDetails(SDKInfo sdkInfo, SDKInfo aggregatedSdkInfo) {
 		if (sdkInfo.getOtherInfo() != null) {
 			aggregatedSdkInfo.getOtherInfo().putAll(sdkInfo.getOtherInfo());
@@ -130,6 +199,18 @@ public class Client_V_1_0 implements IBioApiV2 {
 		}
 	}
 
+	/**
+	 * Initializes the SDK for a given SDK service URL using the provided
+	 * initialization parameters.
+	 * 
+	 * @param initParams    The initialization parameters required for SDK
+	 *                      initialization.
+	 * @param sdkServiceUrl The URL of the SDK service to initialize.
+	 * @return An {@code SDKInfo} object containing information about the
+	 *         initialized SDK.
+	 * @throws BioSdkClientException If an error occurs during SDK initialization or
+	 *                               processing.
+	 */
 	private SDKInfo initForSdkUrl(Map<String, String> initParams, String sdkServiceUrl) {
 		SDKInfo sdkInfo = null;
 		try {
@@ -166,6 +247,17 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return sdkInfo;
 	}
 
+	/**
+	 * Retrieves and returns SDK service URLs from the provided initialization
+	 * parameters. If a default URL is not specified in the parameters, attempts to
+	 * fetch it from the environment variables. Throws an exception if no valid SDK
+	 * service URL is configured.
+	 * 
+	 * @param initParams The initialization parameters containing SDK service URLs.
+	 * @return A {@code Map} containing SDK service names as keys and their
+	 *         corresponding URLs as values.
+	 * @throws IllegalStateException If no valid SDK service URL is configured.
+	 */
 	private Map<String, String> getSdkUrls(Map<String, String> initParams) {
 		Map<String, String> sdkUrls = new HashMap<>(initParams.entrySet().stream()
 				.filter(entry -> entry.getKey().contains(FORMAT_URL_PREFIX)).collect(Collectors
@@ -190,6 +282,19 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return sdkUrls;
 	}
 
+	/**
+	 * Retrieves the SDK service URL based on the specified biometric modality and
+	 * optional flags. If a specific format for the modality is found in the flags
+	 * map, returns the corresponding URL from the sdkUrlsMap. If no matching format
+	 * is found, falls back to the default SDK service URL.
+	 *
+	 * @param modality The biometric modality for which the SDK service URL is
+	 *                 requested.
+	 * @param flags    Optional flags that may contain a specific format key for the
+	 *                 modality.
+	 * @return The SDK service URL corresponding to the modality and flags, or the
+	 *         default SDK service URL if not found.
+	 */
 	private String getSdkServiceUrl(BiometricType modality, Map<String, String> flags) {
 		if (modality != null) {
 			String key = modality.name() + FORMAT_SUFFIX;
@@ -209,14 +314,37 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return getDefaultSdkServiceUrl();
 	}
 
+	/**
+	 * Retrieves the default SDK service URL from the sdkUrlsMap.
+	 *
+	 * @return The default SDK service URL.
+	 */
 	private String getDefaultSdkServiceUrl() {
 		return sdkUrlsMap.get(DEFAULT);
 	}
 
+	/**
+	 * Retrieves the default SDK service URL from the environment variables.
+	 *
+	 * @return The default SDK service URL fetched from the environment variables.
+	 */
 	private String getDefaultSdkServiceUrlFromEnv() {
 		return System.getenv(MOSIP_BIOSDK_SERVICE);
 	}
 
+	/**
+	 * Performs a quality check on the provided biometric sample for specified
+	 * modalities using the configured SDK service.
+	 *
+	 * @param sample            The biometric record sample to be checked.
+	 * @param modalitiesToCheck List of biometric modalities to perform quality
+	 *                          check for.
+	 * @param flags             Optional flags for customization of the quality
+	 *                          check operation.
+	 * @return A response containing the quality check result.
+	 * @throws BioSdkClientException If an error occurs during the quality check
+	 *                               operation.
+	 */
 	@Override
 	public Response<QualityCheck> checkQuality(BiometricRecord sample, List<BiometricType> modalitiesToCheck,
 			Map<String, String> flags) {
@@ -259,6 +387,22 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return response;
 	}
 
+	/**
+	 * Matches a biometric sample against a gallery of biometric records using the
+	 * specified modalities and flags.
+	 *
+	 * @param sample            The biometric record sample to match against the
+	 *                          gallery.
+	 * @param gallery           Array of biometric records forming the gallery to
+	 *                          match against.
+	 * @param modalitiesToMatch List of biometric modalities to use for matching.
+	 * @param flags             Optional flags for customization of the matching
+	 *                          operation.
+	 * @return A response containing the match decisions from the matching
+	 *         operation.
+	 * @throws BioSdkClientException If an error occurs during the matching
+	 *                               operation.
+	 */
 	@Override
 	public Response<MatchDecision[]> match(BiometricRecord sample, BiometricRecord[] gallery,
 			List<BiometricType> modalitiesToMatch, Map<String, String> flags) {
@@ -308,6 +452,20 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return response;
 	}
 
+	/**
+	 * Extracts biometric templates from the provided sample using the specified
+	 * modalities and flags.
+	 *
+	 * @param sample              The biometric record sample from which to extract
+	 *                            templates.
+	 * @param modalitiesToExtract List of biometric modalities for which to extract
+	 *                            templates.
+	 * @param flags               Optional flags for customization of the template
+	 *                            extraction operation.
+	 * @return A response containing the extracted biometric record with templates.
+	 * @throws BioSdkClientException If an error occurs during the template
+	 *                               extraction operation.
+	 */
 	@Override
 	public Response<BiometricRecord> extractTemplate(BiometricRecord sample, List<BiometricType> modalitiesToExtract,
 			Map<String, String> flags) {
@@ -338,6 +496,22 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return response;
 	}
 
+	/**
+	 * Retrieves the SDK service URL based on the provided modalities to extract and
+	 * optional flags. If modalities are specified, it fetches the URL corresponding
+	 * to the first modality in the list. If no modalities are specified but flags
+	 * are provided, it checks flags for specific biometric types (Finger, Iris,
+	 * Face) and returns the corresponding SDK service URL if found. If neither
+	 * modalities nor matching flags are provided, it returns the default SDK
+	 * service URL.
+	 *
+	 * @param modalitiesToExtract List of biometric modalities for which to retrieve
+	 *                            the SDK service URL.
+	 * @param flags               Optional flags for customization of the SDK
+	 *                            service URL retrieval.
+	 * @return The SDK service URL based on the provided modalities and flags, or
+	 *         the default URL if no matches are found.
+	 */
 	private String getSdkServiceUrl(List<BiometricType> modalitiesToExtract, Map<String, String> flags) {
 		if (modalitiesToExtract != null && !modalitiesToExtract.isEmpty()) {
 			return getSdkServiceUrl(modalitiesToExtract.get(0), flags);
@@ -356,6 +530,19 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return getDefaultSdkServiceUrl();
 	}
 
+	/**
+	 * Segments a biometric record into individual components using the specified
+	 * modalities and flags.
+	 *
+	 * @param biometricRecord     The biometric record to be segmented.
+	 * @param modalitiesToSegment List of biometric modalities to use for
+	 *                            segmentation.
+	 * @param flags               Optional flags for customization of the
+	 *                            segmentation operation.
+	 * @return A response containing the segmented biometric record components.
+	 * @throws BioSdkClientException If an error occurs during the segmentation
+	 *                               operation.
+	 */
 	@Override
 	public Response<BiometricRecord> segment(BiometricRecord biometricRecord, List<BiometricType> modalitiesToSegment,
 			Map<String, String> flags) {
@@ -386,6 +573,19 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return response;
 	}
 
+	/**
+	 * Converts the response entity into a structured Response object containing a
+	 * BiometricRecord, handling any parsing errors and setting appropriate response
+	 * properties.
+	 *
+	 * @param response       Response object to be populated with the converted
+	 *                       BiometricRecord.
+	 * @param responseEntity ResponseEntity object received from the SDK service API
+	 *                       call.
+	 * @throws ParseException        If there is an error parsing the response body.
+	 * @throws BioSdkClientException If there is an error handling the response or
+	 *                               converting it to BiometricRecord.
+	 */
 	private void convertAndSetResponseObject(Response<BiometricRecord> response, ResponseEntity<?> responseEntity)
 			throws ParseException {
 		Object responseBodyObject = responseEntity.getBody();
@@ -409,10 +609,24 @@ public class Client_V_1_0 implements IBioApiV2 {
 	}
 
 	/**
-	 * This method is deprecated and will be removed in future versions.
+	 * Converts the format of a biometric record from the source format to the
+	 * target format using the specified parameters and modalities for conversion.
+	 * <p>
+	 * Note: This method is deprecated and will be removed in future versions.
 	 *
-	 * @since 1.2.0.1
-	 * @deprecated since 1.2.0.1, for removal in a future release
+	 * @param sample              The biometric record to be converted.
+	 * @param sourceFormat        The source format of the biometric record.
+	 * @param targetFormat        The target format to which the biometric record
+	 *                            should be converted.
+	 * @param sourceParams        Optional parameters specific to the source format.
+	 * @param targetParams        Optional parameters specific to the target format.
+	 * @param modalitiesToConvert List of biometric modalities to include in the
+	 *                            conversion process.
+	 * @return The converted biometric record in the target format.
+	 * @throws BioSdkClientException If an error occurs during the format conversion
+	 *                               operation.
+	 * @since 1.0.0
+	 * @deprecated Since 1.2.0.1, for removal in a future release.
 	 */
 	@Deprecated(since = "1.2.0.1", forRemoval = true)
 	@Override
@@ -458,6 +672,30 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return resBiometricRecord;
 	}
 
+	/**
+	 * Converts the format of a biometric record from the source format to the
+	 * target format using the specified parameters and modalities for conversion.
+	 * <p>
+	 * This method sends a request to the SDK service endpoint for format conversion
+	 * and handles the response. It expects a successful HTTP response (2xx status
+	 * code) with a JSON payload containing the converted biometric record. If the
+	 * conversion fails or an error occurs, a {@link BioSdkClientException} is
+	 * thrown.
+	 *
+	 * @param sample              The biometric record to be converted.
+	 * @param sourceFormat        The source format of the biometric record.
+	 * @param targetFormat        The target format to which the biometric record
+	 *                            should be converted.
+	 * @param sourceParams        Optional parameters specific to the source format.
+	 * @param targetParams        Optional parameters specific to the target format.
+	 * @param modalitiesToConvert List of biometric modalities to include in the
+	 *                            conversion process.
+	 * @return A {@link Response} containing the converted biometric record in the
+	 *         target format.
+	 * @throws BioSdkClientException If an error occurs during the format conversion
+	 *                               operation.
+	 * @since 1.0.0
+	 */
 	@Override
 	public Response<BiometricRecord> convertFormatV2(BiometricRecord sample, String sourceFormat, String targetFormat,
 			Map<String, String> sourceParams, Map<String, String> targetParams,
@@ -494,6 +732,19 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return response;
 	}
 
+	/**
+	 * Parses the JSON response body into a structured format and sets the
+	 * corresponding fields in the provided {@link Response} object.
+	 *
+	 * @param response     The {@link Response} object to set with parsed data.
+	 * @param responseBody The JSON response body received from the SDK service
+	 *                     endpoint.
+	 * @param clazz        The class type of the expected response object.
+	 * @param <T>          The generic type representing the response object.
+	 * @throws ParseException If an error occurs while parsing the JSON response
+	 *                        body.
+	 * @since 1.0.0
+	 */
 	private <T> void convertAndSetResponseObject(Response<T> response, String responseBody, Class<T> clazz)
 			throws ParseException {
 		JSONParser parser = new JSONParser();
@@ -517,6 +768,15 @@ public class Client_V_1_0 implements IBioApiV2 {
 				jsonResponse.get(TAG_RESPONSE) != null ? jsonResponse.get(TAG_RESPONSE).toString() : null, clazz));
 	}
 
+	/**
+	 * Generates a new {@link RequestDto} object with the provided body, encoded as
+	 * a base64 JSON string.
+	 *
+	 * @param body The object to be serialized and encoded as the request body.
+	 * @return A new {@link RequestDto} instance configured with the serialized and
+	 *         encoded request body.
+	 * @since 1.0.0
+	 */
 	private RequestDto generateNewRequestDto(Object body) {
 		RequestDto requestDto = new RequestDto();
 		requestDto.setVersion(VERSION);
@@ -524,6 +784,19 @@ public class Client_V_1_0 implements IBioApiV2 {
 		return requestDto;
 	}
 
+	/**
+	 * Handles errors received from the SDK service by processing the list of
+	 * {@link ErrorDto}. If errors are present, constructs an error message
+	 * containing error codes and messages, and throws a
+	 * {@link BioSdkClientException} with the concatenated error details.
+	 *
+	 * @param errors The list of {@link ErrorDto} objects representing errors
+	 *               returned by the SDK service. If {@code null}, no action is
+	 *               taken.
+	 * @throws BioSdkClientException If errors are present, constructs an exception
+	 *                               with the concatenated error details.
+	 * @since 1.0.0
+	 */
 	private void errorHandler(List<ErrorDto> errors) {
 		if (errors == null) {
 			return;

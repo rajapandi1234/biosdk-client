@@ -1,17 +1,28 @@
 package io.mosip.biosdk.client.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
 import java.util.Map;
 
-@Getter
-@Setter
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+/**
+ * Data Transfer Object (DTO) representing a request to initialize a biometric
+ * SDK. Encapsulates initialization parameters required for setting up the SDK.
+ *
+ * <p>
+ * This class is used to structure requests for initializing a biometric SDK,
+ * containing a map of initialization parameters needed for SDK setup.
+ * </p>
+ *
+ * @since 1.0.0
+ */
+@Data
 @NoArgsConstructor
 @ToString
 public class InitRequestDto {
-
-    private Map<String, String> initParams;
+	/**
+	 * Map of initialization parameters required for setting up the biometric SDK.
+	 */
+	private Map<String, String> initParams;
 }
